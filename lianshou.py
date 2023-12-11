@@ -45,11 +45,11 @@ def download_file(url):
         else:
             os.makedirs('images')
         os.chdir('images')
-        if os.path.isdir(f'{url.split("/")[2]}'):
+        if os.path.isdir(f'{domain}'):
             pass
         else:
-            os.mkdir(f'{url.split("/")[2]}')
-        os.chdir(f'{url.split("/")[2]}')
+            os.mkdir(f'{domain}')
+        os.chdir(f'{domain}')
         print('---------------创建文件夹----------------')
         print('--------------开始保存图片----------------')
         for a in imgs:
