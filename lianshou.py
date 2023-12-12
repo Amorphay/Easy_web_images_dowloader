@@ -45,11 +45,11 @@ def download_file(url):
         else:
             os.makedirs('images')
         os.chdir('images')
-        if os.path.isdir(f'{domain}'):
+        if os.path.isdir(f'{url.split("/")[2]}'):
             pass
         else:
-            os.mkdir(f'{domain}')
-        os.chdir(f'{domain}')
+            os.mkdir(f'{url.split("/")[2]}')
+        os.chdir(f'{url.split("/")[2]}')
         print('---------------创建文件夹----------------')
         print('--------------开始保存图片----------------')
         for a in imgs:
@@ -61,8 +61,11 @@ def download_file(url):
             else:
                 src = domain + '/' + src
                 download_image(src)
+        os.chdir('../')
+        os.chdir('../')
         print('----------------操作完成-----------------')
         print(f'共下载{success + fail}张图片，成功下载{success}张，{fail}张下载失败')
+        print(f'下载时间为：{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
 
     else:
         print("请求失败")
