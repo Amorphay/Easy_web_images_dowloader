@@ -23,8 +23,8 @@ def download_image(url):
             # ext = os.path.splitext(url)[1]
             with open(f'{filename}', 'wb') as f:
                 f.write(response.content)
-                print(f'图片{filename}保存成功')
                 success += 1
+            print(f'{filename}保存成功')
     else:
         filename = os.path.basename(url)
         print(f'图片{filename}下载失败，状态码：{response.status_code}')

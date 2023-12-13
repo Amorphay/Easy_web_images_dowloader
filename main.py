@@ -1,10 +1,15 @@
-from PySide6.QtWidgets import QApplication, QWidget
+import random
+
+from PySide6.QtWidgets import QApplication, QWidget, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem
 from PySide6.QtCore import Signal, QThread, QObject
-from PySide6.QtGui import QIcon, QTextCursor
-from images import Ui_Form
+from PySide6.QtGui import QIcon, QTextCursor, QPixmap
+from gui import Ui_Form
 from io import StringIO
-from lianshou import download_file
+from spider import download_file
 import sys
+import re
+from urllib.parse import urlparse, urlsplit
+import os
 
 
 class Thread(QThread):
@@ -44,6 +49,13 @@ class Window(QWidget):
         super().__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.setGeometry(0, 0, 1200, 476)
+        self.view = QGraphicsView(self)
+        self.view.setGeometry(700, 50, 450, 400)
+        self.scene = QGraphicsScene(self)
+        self.view.setSceneRect(self.view.rect())
+        self.view.setScene(self.scene)
+        self.list = []
         # self.redirect = Redirect(self.ui.plainTextEdit)
         # sys.stdout = self.redirect
         sys.stdout = EmittingThread()
@@ -55,14 +67,36 @@ class Window(QWidget):
         self.ui.pushButton_2.clicked.connect(self.clear)
 
     def normal_update(self, text):
+        self.list.append(text)
         cursor = self.ui.plainTextEdit.textCursor()
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
         self.ui.plainTextEdit.ensureCursorVisible()
+        pattern = r".*\.(jpg|png|gif|bmp)"
+        result = re.search(pattern, text)
+        if result:
+            code_dir = os.path.dirname(os.path.abspath(__file__))
+            domain = "\\{0.netloc}\\".format(urlsplit(self.url))
+            path = code_dir + '\\images' + domain + result.group()
+            img = QPixmap(path)
+            if img.isNull():
+                pass
+            else:
+                item = QGraphicsPixmapItem(img)
+                item.setPos(random.randint(0, 250), random.randint(0, 250))
+                item.setRotation(random.randint(0, 30))
+                item.setScale(0.35)
+                self.scene.addItem(item)
+
+        else:
+            pass
 
     def start_download(self):
-        url = self.ui.lineEdit.text()
-        self.thread = Thread(url)
+        temp = self.ui.lineEdit.text()
+        domain = "{0.scheme}://{0.netloc}".format(urlsplit(temp))
+        print(domain)
+        self.url = domain
+        self.thread = Thread(self.url)
         self.thread.start()
         self.thread.finished.connect(self.thread.finished.emit)
 
