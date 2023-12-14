@@ -1,15 +1,19 @@
-import random
-
-from PySide6.QtWidgets import QApplication, QWidget, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem
+from PySide6.QtWidgets import QApplication, QWidget, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QLabel
 from PySide6.QtCore import Signal, QThread, QObject
 from PySide6.QtGui import QIcon, QTextCursor, QPixmap
-from gui import Ui_Form
-from io import StringIO
+from gui import Ui_Form, QFont
 from spider import download_file
 import sys
-import re
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import urlsplit
 import os
+import random
+from extract import match
+from qt_material import apply_stylesheet
+import static.icon_rc
+
+extral = {
+    'font_family': 'mini-wakuwaku'
+}
 
 
 class Thread(QThread):
@@ -23,16 +27,6 @@ class Thread(QThread):
         download_file(self.url)
         self.finished.emit(self.url)
 
-
-# class Redirect:
-#     def __init__(self, text_edit):
-#         self.text_edit = text_edit
-#
-#     def write(self, str):
-#         self.text_edit.appendPlainText(str)
-#
-#     def flush(self):
-#         self.text_edit.setPlainText("")
 
 class EmittingThread(QObject):
     textWritten = Signal(str)
@@ -49,15 +43,13 @@ class Window(QWidget):
         super().__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.setGeometry(0, 0, 1200, 476)
+        self.setGeometry(0, 0, 1170, 476)
         self.view = QGraphicsView(self)
         self.view.setGeometry(700, 50, 450, 400)
+        self.setWindowIcon(QIcon(':/images/icon1.ico'))
         self.scene = QGraphicsScene(self)
         self.view.setSceneRect(self.view.rect())
         self.view.setScene(self.scene)
-        self.list = []
-        # self.redirect = Redirect(self.ui.plainTextEdit)
-        # sys.stdout = self.redirect
         sys.stdout = EmittingThread()
         sys.stdout.textWritten.connect(self.normal_update)
         self.bind()
@@ -67,13 +59,11 @@ class Window(QWidget):
         self.ui.pushButton_2.clicked.connect(self.clear)
 
     def normal_update(self, text):
-        self.list.append(text)
         cursor = self.ui.plainTextEdit.textCursor()
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
         self.ui.plainTextEdit.ensureCursorVisible()
-        pattern = r".*\.(jpg|png|gif|bmp)"
-        result = re.search(pattern, text)
+        result = match(text)
         if result:
             code_dir = os.path.dirname(os.path.abspath(__file__))
             domain = "\\{0.netloc}\\".format(urlsplit(self.url))
@@ -98,7 +88,7 @@ class Window(QWidget):
         self.url = domain
         self.thread = Thread(self.url)
         self.thread.start()
-        self.thread.finished.connect(self.thread.finished.emit)
+        self.thread.finished.connect(self.thread.finished.deleteLater)
 
     def clear(self):
         self.ui.plainTextEdit.setPlainText("")
@@ -107,5 +97,6 @@ class Window(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = Window()
+    apply_stylesheet(app, 'light_pink.xml', extra=extral)
     window.show()
     app.exec()
