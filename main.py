@@ -75,7 +75,7 @@ class Window(QWidget):
                 item = QGraphicsPixmapItem(img)
                 item.setPos(random.randint(0, 250), random.randint(0, 250))
                 item.setRotation(random.randint(0, 30))
-                item.setScale(0.35)
+                item.setScale(0.4)
                 self.scene.addItem(item)
 
         else:
@@ -86,9 +86,9 @@ class Window(QWidget):
         domain = "{0.scheme}://{0.netloc}".format(urlsplit(temp))
         print(domain)
         self.url = domain
-        self.thread = Thread(self.url)
+        self.thread = Thread(temp)
         self.thread.start()
-        self.thread.finished.connect(self.thread.finished.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
 
     def clear(self):
         self.ui.plainTextEdit.setPlainText("")

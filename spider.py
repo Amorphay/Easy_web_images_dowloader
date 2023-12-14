@@ -24,10 +24,10 @@ def download_image(url):
             with open(f'{filename}', 'wb') as f:
                 f.write(response.content)
                 success += 1
-            print(f'{filename}保存成功')
+            print(f'{filename} dowloaded')
     else:
         filename = os.path.basename(url)
-        print(f'图片{filename}下载失败，状态码：{response.status_code}')
+        print(f'Dowload{filename} fail，status code:{response.status_code}')
         fail += 1
 
 
@@ -40,6 +40,7 @@ def download_file(url):
         global success, fail
         success = 0
         fail = 0
+        print('--------Creat dirctory---------')
         if os.path.isdir('images'):
             pass
         else:
@@ -50,8 +51,7 @@ def download_file(url):
         else:
             os.mkdir(f'{url.split("/")[2]}')
         os.chdir(f'{url.split("/")[2]}')
-        print('---------------创建文件夹----------------')
-        print('--------------开始保存图片----------------')
+        print('--------Dowload images--------')
         for a in imgs:
             time.sleep(0.1)
             src = a.get('src')
@@ -63,9 +63,10 @@ def download_file(url):
                 download_image(src)
         os.chdir('../')
         os.chdir('../')
-        print('----------------操作完成-----------------')
-        print(f'共下载{success + fail}张图片，成功下载{success}张，{fail}张下载失败')
-        print(f'下载时间为：{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+        print('-------Opration finished------')
+        print(f'Dowload{success + fail} imgaes.')
+        print(f'{success} successed {fail} failed')
+        print(f'Dowload time:{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
 
     else:
         print("请求失败")
